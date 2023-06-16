@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Register.css';
+
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (username.trim() && password.trim()) {
-      try {
-        const response = await fetch('http://localhost:3000/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }),
-        });
+      const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+      const userExists = existingUsers.some((user) => user.username === username);
 
-        if (response.ok) {
-          navigate('/login');
-        } else {
-          setError('Registration failed');
-        }
-      } catch (error) {
-        setError('An error occurred during registration');
+      if (userExists) {
+        setError('Username is already taken');
+      } else {
+        const newUser = {
+          username: username,
+          password: password,
+        };
+
+        existingUsers.push(newUser);
+        localStorage.setItem('users', JSON.stringify(existingUsers));
+
+        navigate('/login');
       }
     }
   };

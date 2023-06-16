@@ -8,26 +8,17 @@ const Login = ({ handleLogin }) => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (username.trim() && password.trim()) {
-      try {
-        const response = await fetch('http://localhost:3000/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }),
-        });
+      const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+      const user = existingUsers.find((user) => user.username === username && user.password === password);
 
-        if (response.ok) {
-          handleLogin();
-          navigate('/welcome');
-        } else {
-          setError('Invalid username or password');
-        }
-      } catch (error) {
-        setError('An error occurred during login');
+      if (user) {
+        handleLogin();
+        navigate('/welcome');
+      } else {
+        setError('Invalid username or password');
       }
     }
   };
